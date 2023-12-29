@@ -1,0 +1,8 @@
+{
+  "appId": "fr.miroirvital.client",
+  "appName": "MiroirVital",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

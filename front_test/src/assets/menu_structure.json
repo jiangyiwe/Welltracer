@@ -1,0 +1,94 @@
+{
+  "fitness": {
+    "label": "Pratiques sportives",
+    "logo": "",
+    "children": {
+      "home_fitness": {
+        "label": "Exercices à la maison",
+        "feature": "home_fitness"
+      },
+      "sports_clubs": {
+        "label": "Clubs sportifs"
+      },
+      "lifestyle": {
+        "label": "Pratiques bien-être"
+      },
+      "sleepwell": {
+        "label": "Suivi du sommeil",
+        "feature": "sleepwell"
+      },
+      "fitness_stats": {
+        "label": "Statistiques"
+      }
+    }
+  },
+  "food": {
+    "label":"Suivi alimentaire",
+    "children": {
+      "scan_a_meal": {
+        "label": "Analyse de repas",
+        "feature": "scan_a_meal"
+      },
+      "healthy_diets": {
+        "label": "Régimes alimentaires"
+      },
+      "meal_ideas": {
+        "label": "Idées de repas"
+      },
+      "food_stats": {
+        "label": "Statistiques"
+      }
+    }
+  },
+  "find_a_doctor": {
+    "label": "Trouver un docteur",
+    "children": {
+      "find_teleconsultations": {
+        "label": "Trouver une téléconsultation"
+      },
+      "diagnose_me": {
+        "label": "Diagnostique moi"
+      },
+      "consultation_calendars": {
+
+      },
+      "my_doctors": {
+
+      }
+    }
+  },
+  "medication_station":{
+    "label": "Suivi médicaments",
+    "children": {
+      "medication_calendar": {
+        "label": "Suivi des prises de médicaments",
+        "feature": "medication_calendar"
+      },
+      "your_treatments": {
+        "label": "Traitements suivis"
+      },
+      "prescription_scan": {
+        "label": "Scan d'ordonnance",
+        "feature": "prescription_scan"
+      },
+      "medication_graph": {
+
+      }
+    }
+  },
+  "self_care_center": {
+    "label": "Prendre soin de vous",
+    "children": {
+      "from_you_to_you": {
+
+      },
+      "emergency_messages": {
+
+      },
+      "send_for_help": {
+
+      }
+    }
+  }
+
+}
