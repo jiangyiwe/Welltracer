@@ -1,5 +1,8 @@
 <template>
 
+  <div>
+    What's your User ID?
+  </div>
 </template>
 
 <script>

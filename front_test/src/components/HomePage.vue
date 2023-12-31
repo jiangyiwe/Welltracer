@@ -2,70 +2,41 @@
   import { ref } from 'vue';
 
 
-  let myValue = "<p>horse :)</p>";
-  let bool1 = false;
-  let bool2 = true;
-
-  const loggedIn = ref(false);
-  //let loggedIn = false;
-
-  let logobar = "sample value for logo";
-  let sitelink = "https://banhammer.net"
-
-
-
-  let navMenu = "<div>GAY BACON STRIPS</div>";
-
-  function toggleLogIn() {
-    loggedIn.value = !loggedIn.value;
-  }
-
-
   import menu_structure from '@/assets/menu_structure.json';
-  //let menu_structure = new Map(menu_structure_obj.entries)
-  //let menu_structure_json = require('@/assets/menu_structure.json')
-  //let menu_structure = JSON.parse(menu_structure_json)
 
-  function extractStructure(depth = '') {
+  let urlParams = new URLSearchParams(window.location.search);
+  let menu_depth = urlParams.get('depth');
+  if (!menu_depth) {
+    menu_depth = ''
+  }
+  console.log(menu_depth)
+
+  function extractStructure(depth = "") {
+    console.log(depth)
     let path_in = depth.split('/');
+    console.log(path_in)
     if (depth === '') {
       path_in = [];
     }
+
     let ret = menu_structure;
-    console.log(menu_structure);
-    console.log(path_in)
     for(const el of path_in) {
-      ret = ret[el];
+      ret = ret[el].children;
     }
+    console.log(ret)
     return ret;
   }
-  function buildMenu(depth = '') {
-    let new_structure = extractStructure(depth);
-    let result = '<table><tr>'
-    let isSecondRowEl = false;
-    console.log('owo')
-    console.log(new_structure)
-    for(const el in new_structure) {
-      console.log(el)
-      result += `<td class="cell"> element ${new_structure[el].label}</td>`
-      if (isSecondRowEl) {
-        result += "</tr><tr>"
-        isSecondRowEl = false;
-      } else {
-        isSecondRowEl = true;
-      }
-    }
-    if (isSecondRowEl) {
-      result += "</tr>"
-    }
-    result += "</table>"
-    return result
-  }
+
 
 
 </script>
 
 <style scoped>
+
+template {
+  color: black;
+  background-color: grey;
+}
 
 table {
   width: 960px;
@@ -73,22 +44,55 @@ table {
 tr {
 }
 .container {
-  display: flex; flex-flow: row wrap
+  display: flex;
+  flex-flow: row wrap;
+  padding-top: 2em;
+  padding-bottom: 2em;
 }
 th, td, .cell{
   width: 50%;
-  border-bottom: 1px dashed white;
+  border-bottom: 1px dashed;
   padding: 10px;
 
-  border-right: 1px dashed white;
-  text-align: center
+  border-right: 1px dashed;
+  /*text-align: center;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .tab {
   display: block;
 }
+.tab-empty-elem {
+
+}
 .tab-pic {
-  width: 80%
+  width: 40%;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+
+
+}
+
+
+.bottom-section {
+
+}
+
+.title {
+  font-weight: bold;
+  font-size: 16px;
+  font-family: MD Primer Bold,Rubik,Lato,Lucida Grande,Lucida Sans Unicode,Tahoma,Sans-Serif;
+}
+
+#phone {
+  width: 600px;
+  /*background-color: lightgray;
+  color: darkgreen;*/
+
 }
 
 </style>
@@ -98,66 +102,34 @@ th, td, .cell{
 
 
 
+    <div id="phone">
+      <div class="container">
+        <div class="cell" v-for="element in extractStructure(menu_depth)">
+          <div class="tab-empty-elem"></div>
 
+          <img class="tab-pic" :src="`src/assets/icons/${element.logo}`" :alt="element.label"/>
 
-  <div class="container">
-    <div class="cell" v-for="element in extractStructure()">
-      <img class="tab-pic" src="../assets/icons/protection.png"/>
+          <a class="title" v-if="element.children" :href="`?depth=${element.cat}`">{{ element.label }}</a>
+          <a class="title" v-if="element.feature" :href="`feature/${element.feature}`">{{ element.label }}</a>
 
-      <p></p>
-      <a href="feature/{{element.feature}}">{{ element.label }}</a>
+        </div>
+      </div>
+      <div class="bottom-section">
+        <a class="title" v-if="menu_depth" :href="`?depth=`">Retour au menu</a>
+        <div v-else >
+          <p class="title"> Souvent visités </p>
+          <div class="container">
+
+          </div>
+        </div>
+      </div>
 
     </div>
 
-  </div>
+
+
 
 
 
 
 </template>
-<!--
-  <div>
-    <a :href="sitelink">Site Link</a>
-  </div>
-  <div>
-    <table>
-      <tr>
-        <td><a class="tab" href="banhammer.net">ee</a></td>
-        <td>dd</td>
-      </tr>
-      <tr>
-        <td>aa</td>
-        <td>zz</td>
-      </tr>
-    </table>
-
-  </div>
-    <div>
-    <p>huuzehhiuzhiuzehiu</p>
-  </div>
-  <div>
-    <div v-if="loggedIn">You are logged in!</div>
-    <div v-else>You are not logged in!</div>
-    <button @click="toggleLogIn">Log in or out</button>
-  </div>
-  <div :id="logobar">
-
-  </div>
-
-  <div>empty text</div>
-  <div v-html="myValue"></div>
-
-  <div v-if="bool1">this shouldn't display</div>
-
-  <nav :id="navMenu" style="">
-
-    <div v-for="">
-      <div>Item</div>
-    </div>
-
-    <table v-html="buildMenu('')">
-
-    </table>
-
-  </nav>
--->
