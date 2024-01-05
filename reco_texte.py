@@ -3,14 +3,16 @@ import os
 from google.cloud import vision
 #%%
 # 设置你的API密钥路径
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Jiang\flask-vue-crud\data\recotexte-409521-6e14f0a168bc.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Jiang\flask-vue-crud\data\recotexte-409521-6e14f0a168bc.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "data/recotexte-409521-6e14f0a168bc.json"
 #%%
 # 实例化Vision Client
 client = vision.ImageAnnotatorClient()
 
 #%%
 # 图片所在的路径
-file_path = r'C:\Users\Jiang\flask-vue-crud\data\Ordonnance.jpg'
+# file_path = r'C:\Users\Jiang\flask-vue-crud\data\Ordonnance.jpg'
+file_path = 'data/Ordonnance.jpg'
 #%%
 
 # 读取图片

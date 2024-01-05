@@ -1,6 +1,4 @@
-<template>
 
-</template>
 
 <script>
 export default {
@@ -11,3 +9,13 @@ export default {
 <style scoped>
 
 </style>
+
+<template>
+  Reccomendations vidéo
+  <div></div>
+
+
+  Accéder à une vidéo
+
+  Me suggérer une vidéo
+</template>

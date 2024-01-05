@@ -21,13 +21,18 @@ const router = createRouter({
       component: HomePage
     },
     {
+      path: '/login',
+      name: 'Login',
+      component: 'Login'
+    },
+    {
       path: '/features/find_a_doctor',
       name: 'Find A Doctor',
       component: FindADoctor
     },
 
     {
-      path: '/features/fitness',
+      path: '/features/home_fitness',
       name: 'Fitness',
       component: Fitness
     },

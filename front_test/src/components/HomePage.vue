@@ -2,6 +2,7 @@
   import { ref } from 'vue';
 
 
+  import Login from './Login.vue'
   import menu_structure from '@/assets/menu_structure.json';
 
   let urlParams = new URLSearchParams(window.location.search);
@@ -12,9 +13,7 @@
   console.log(menu_depth)
 
   function extractStructure(depth = "") {
-    console.log(depth)
     let path_in = depth.split('/');
-    console.log(path_in)
     if (depth === '') {
       path_in = [];
     }
@@ -48,14 +47,27 @@ tr {
   flex-flow: row wrap;
   padding-top: 2em;
   padding-bottom: 2em;
+  margin-left: 2em;
+  margin-right: 2em;
 }
 th, td, .cell{
   width: 50%;
-  border-bottom: 1px dashed;
   padding: 10px;
 
-  border-right: 1px dashed;
   /*text-align: center;*/
+
+
+}
+.cell-body {
+  height: 100%;
+  width: 100%;
+
+
+  border: 3px outset hsla(160, 100%, 37%, 1);
+  border-radius: 2.5em;
+  padding: 1em;
+  background-color: hsla(160, 100%, 37%, 0.2);
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -71,6 +83,7 @@ th, td, .cell{
 .tab-pic {
   width: 40%;
   display:flex;
+  padding-bottom: 1em;
   align-items: center;
   justify-content: center;
 
@@ -88,10 +101,13 @@ th, td, .cell{
   font-family: MD Primer Bold,Rubik,Lato,Lucida Grande,Lucida Sans Unicode,Tahoma,Sans-Serif;
 }
 
-#phone {
+.phone {
+  /*
+  border: 5px black solid;
   width: 600px;
-  /*background-color: lightgray;
+  height: 950px;
   color: darkgreen;*/
+  background-color: lightgray;
 
 }
 
@@ -100,17 +116,22 @@ th, td, .cell{
 <template>
 
 
+  <!--<LoginComp />-->
+  <Login />
 
 
-    <div id="phone">
+    <div class="phone">
       <div class="container">
         <div class="cell" v-for="element in extractStructure(menu_depth)">
-          <div class="tab-empty-elem"></div>
+          <div class="cell-body">
+            <div class="tab-empty-elem"></div>
 
-          <img class="tab-pic" :src="`src/assets/icons/${element.logo}`" :alt="element.label"/>
+            <img class="tab-pic" :src="`src/assets/icons/${element.logo}`" :alt="element.label"/>
 
-          <a class="title" v-if="element.children" :href="`?depth=${element.cat}`">{{ element.label }}</a>
-          <a class="title" v-if="element.feature" :href="`feature/${element.feature}`">{{ element.label }}</a>
+            <a class="title" v-if="element.children" :href="`?depth=${element.cat}`">{{ element.label }}</a>
+            <a class="title" v-else-if="element.feature" :href="`features/${element.feature}`">{{ element.label }}</a>
+            <a class="title" href="#" v-else>{{ element.label }}</a>
+          </div>
 
         </div>
       </div>

@@ -24,11 +24,17 @@ def create_app():
     with app.app_context():
         db.create_all()  # 在应用上下文中创建数据库表
 
-    model = load_model(r"C:\Users\Jiang\flask-vue-crud\model-re-image.h5")
-    model_sport = load_model(r"C:\Users\Jiang\flask-vue-crud\sport_model.h5")
-    classes_sport = sorted(os.listdir(r"C:\Users\Jiang\flask-vue-crud\data\sport"))
+    #model = load_model(r"C:\Users\Jiang\flask-vue-crud\model-re-image.h5")
+    #model_sport = load_model(r"C:\Users\Jiang\flask-vue-crud\sport_model.h5")
+    #classes_sport = sorted(os.listdir(r"C:\Users\Jiang\flask-vue-crud\data\sport"))
+    #model = load_model("model-re-image.h5")
+    model = 0
+    #model_sport = load_model("sport_model.h5")
+    model_sport = 0
+    classes_sport = sorted(os.listdir("data/sport/"))
 
-    credentials = service_account.Credentials.from_service_account_file(r"C:\Users\Jiang\flask-vue-crud\data\recotexte-409521-6e14f0a168bc.json")
+
+    credentials = service_account.Credentials.from_service_account_file("data/recotexte-409521-6e14f0a168bc.json")
     client = vision.ImageAnnotatorClient(credentials=credentials)
 
     # Assuming you have the following labels from your training
@@ -54,6 +60,7 @@ def create_app():
     def list_classes():
         return jsonify(classes_sport)
 
+# todo: access this route
     @app.route('/random_videos', methods=['GET'])
     def random_videos():
         num_videos = 5  # The number of videos you want to return
@@ -61,7 +68,8 @@ def create_app():
         video_selections = []
         for _ in range(num_videos):
             video_class = random.choice(classes_sport)
-            video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class)
+            # video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class)
+            video_path = os.path.join("data/sport", video_class)
             video_files = os.listdir(video_path)
             video_file = random.choice(video_files)
 
@@ -77,11 +85,14 @@ def create_app():
 
         return jsonify(video_selections)
 
+# todo: access this route
     @app.route('/video/<video_class>/<video_filename>', methods=['GET'])
     def serve_video(video_class, video_filename):
-        video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class, video_filename)
+        #video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class, video_filename)
+        video_path = os.path.join("data/sport", video_class, video_filename)
         return send_file(video_path, mimetype='video/mp4')  # Ensure the mimetype matches your video format
 
+# todo: access this route
     # 新增一个路由来记录观看
     @app.route('/record_watch', methods=['POST'])
     def record_watch():
@@ -103,6 +114,7 @@ def create_app():
         return jsonify({"status": "success", "message": "Recorded video watch successfully"})
 
 
+# todo: access this route
     @app.route('/history', methods=['GET'])
     def view_history():
         # 查询数据库获取所有观看记录
@@ -136,7 +148,8 @@ def create_app():
         last_watched_class = last_watched_record.video_class
 
         # 获取该类别下所有视频
-        video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", last_watched_class)
+        #video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", last_watched_class)
+        video_path = os.path.join("data/sport", last_watched_class)
         try:
             all_videos = os.listdir(video_path)
         except FileNotFoundError:
@@ -203,7 +216,8 @@ def create_app():
     @app.route('/detect-text', methods=['GET'])
     def detect_text():
         # 设置图片路径
-        file_path = "C:/Users/Jiang/flask-vue-crud/data/Ordonnance.jpg"
+        # file_path = "C:/Users/Jiang/flask-vue-crud/data/Ordonnance.jpg"
+        file_path = "data/Ordonnance.jpg"
 
         # 读取图片文件
         with io.open(file_path, 'rb') as image_file:
