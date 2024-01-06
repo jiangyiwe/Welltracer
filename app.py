@@ -68,7 +68,6 @@ def create_app():
     def list_classes():
         return jsonify(classes_sport)
 
-# todo: access this route
     @app.route('/random_videos', methods=['GET'])
     def random_videos():
         num_videos = 5  # The number of videos you want to return
@@ -93,14 +92,12 @@ def create_app():
 
         return jsonify(video_selections)
 
-# todo: access this route
     @app.route('/video/<video_class>/<video_filename>', methods=['GET'])
     def serve_video(video_class, video_filename):
         #video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class, video_filename)
         video_path = os.path.join("data/sport", video_class, video_filename)
         return send_file(video_path, mimetype='video/mp4')  # Ensure the mimetype matches your video format
 
-# todo: access this route
     # 新增一个路由来记录观看
     @app.route('/record_watch', methods=['POST'])
     def record_watch():
@@ -122,7 +119,6 @@ def create_app():
         return jsonify({"status": "success", "message": "Recorded video watch successfully"})
 
 
-# todo: access this route
     @app.route('/history', methods=['GET'])
     def view_history():
         # 查询数据库获取所有观看记录
