@@ -14,24 +14,32 @@ from flask_sqlalchemy import SQLAlchemy
 import requests
 from google.cloud import vision
 from google.oauth2 import service_account
+# allow CORS
+from flask_cors import CORS
 # 定义一个路由暴露给网站的访问接口
 db = SQLAlchemy()
+
+
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///watch_history.db'
     db.init_app(app)
 
+
+    # enable CORS
+    CORS(app, resources={r'/*': {'origins': '*'}})
+
     with app.app_context():
         db.create_all()  # 在应用上下文中创建数据库表
 
-    #model = load_model(r"C:\Users\Jiang\flask-vue-crud\model-re-image.h5")
-    #model_sport = load_model(r"C:\Users\Jiang\flask-vue-crud\sport_model.h5")
-    #classes_sport = sorted(os.listdir(r"C:\Users\Jiang\flask-vue-crud\data\sport"))
-    #model = load_model("model-re-image.h5")
-    model = 0
-    #model_sport = load_model("sport_model.h5")
-    model_sport = 0
-    classes_sport = sorted(os.listdir("data/sport/"))
+    model = load_model("./model-re-image.h5")
+    model_sport = load_model("./sport_model.h5")
+    classes_sport = sorted(os.listdir("./data/sport"))
+    model = load_model("./model-re-image.h5")
+
+    model_sport = load_model("./sport_model.h5")
+
+    classes_sport = sorted(os.listdir("./data/sport/"))
 
 
     credentials = service_account.Credentials.from_service_account_file("data/recotexte-409521-6e14f0a168bc.json")

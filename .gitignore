@@ -42,3 +42,8 @@ server/lib64/
 server/parts/
 server/sdist/
 server/var/
+/model-re-image.h5
+/model-re-image.keras
+/sport_model.h5
+/.ipynb_checkpoints/*
+/instance/watch_history.db

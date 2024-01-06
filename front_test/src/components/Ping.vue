@@ -8,6 +8,7 @@
 
 <script>
 import axios from 'axios';
+import VueCookies from 'vue-cookies'
 
 export default {
   name: 'Ping',
@@ -18,7 +19,7 @@ export default {
   },
   methods: {
     getMessage() {
-      const path = 'http://localhost:5001/ping';
+      const path = 'http://localhost:5001/';
       axios.get(path)
         .then((res) => {
           this.msg = res.data;

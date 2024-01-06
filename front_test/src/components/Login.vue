@@ -11,20 +11,21 @@ export default {
     if (userId.value === undefined) {
       userId.value = -1;
     }
-    let message = ref("What's your User ID?");
+    let message = ref("Connectez vous avec votre numéro d'utilisateur. Il sera utilisé pour vous identifier.");
 
     function setUserId() {
       if (!isNaN(userId.value) && userId.value > 0) {
         // set UserId
         $cookies.set("userId", userId.value);
+        message.value = "Vous êtes connectée."
       } else {
-        message.value = "This is not a valid userId. Please enter an integer greater than 1.";
+        message.value = "Ceci n'est ps un numéro d'utilisateur valide. Veuillez entrer un entier supérieur à 1.";
       }
     }
 
     function disconnect() {
       $cookies.remove("userId");
-      userId = -1;
+      userId.value = -1;
     }
 
     return {
@@ -37,7 +38,7 @@ export default {
 }
 
 // getUserId returns userId >= 1 if the user is logged in (userId numerical and > 1), and -1 otherwise
-function getUserId() {
+export function getUserId() {
   const userId = $cookies.get("userId");
   if (!userId || isNaN(userId) || userId < 1) {
     return -1;
@@ -55,7 +56,7 @@ let message2 = "nzejkjke fejfdlnfsdn"
 <template id="template-login">
 
   <div>
-    <p>Connectez vous avec votre numéro d'utilisateur. Il sera utilisé pour vous identifier.</p>
+    <p>{{message}}</p>
     <p>Votre numéro d'utilisateur est : {{userId}}</p>
     <input v-model="userId" type="number">
     <button @click="setUserId()">Se connecter</button>
