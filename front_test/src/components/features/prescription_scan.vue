@@ -1,10 +1,14 @@
 <template>
 
+  <p>Enter your prescription here!</p>
 </template>
 
 <script>
+import axios from 'axios';
+import { getUserId } from '../Login.vue'
+
 export default {
-  name: "find_a_doctor"
+  name: "prescription_scan"
 }
 </script>
 

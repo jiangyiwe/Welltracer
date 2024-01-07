@@ -182,6 +182,7 @@ def create_app():
 
         return jsonify(recommendations_info)
 
+    # todo: adapt this so that a picture is sent instead
     @app.route('/predict_img', methods=['GET'])
     def predict_img():
         print("Predict Image function called")  # Debugging line
@@ -217,6 +218,7 @@ def create_app():
 
         return html
 
+    # todo: adapt this so a picture is sent instead
     @app.route('/detect-text', methods=['GET'])
     def detect_text():
         # 设置图片路径

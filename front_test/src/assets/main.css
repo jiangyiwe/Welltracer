@@ -33,3 +33,10 @@ a,
     padding: 0 2rem;
   }
 }
+
+.title {
+  font-weight: bold;
+  font-size: 16px;
+  font-family: MD Primer Bold,Rubik,Lato,Lucida Grande,Lucida Sans Unicode,Tahoma,Sans-Serif;
+}
+

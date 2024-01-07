@@ -1,7 +1,4 @@
 <script setup>
-  import { ref } from 'vue';
-
-
   import Login from './Login.vue'
   import menu_structure from '@/assets/menu_structure.json';
 
@@ -10,7 +7,6 @@
   if (!menu_depth) {
     menu_depth = ''
   }
-  console.log(menu_depth)
 
   function extractStructure(depth = "") {
     let path_in = depth.split('/');
@@ -22,26 +18,25 @@
     for(const el of path_in) {
       ret = ret[el].children;
     }
-    console.log(ret)
     return ret;
   }
+  //const structure = extractStructure(menu_depth)
 
-
+  function cell_link(element) {
+    if (element.children) {
+      return `?depth=${element.cat}`;
+    } else if (element.feature) {
+      return `features/${element.feature}`;
+    } else {
+      return '#';
+    }
+  }
 
 </script>
 
 <style scoped>
 
-template {
-  color: black;
-  background-color: grey;
-}
 
-table {
-  width: 960px;
-}
-tr {
-}
 .container {
   display: flex;
   flex-flow: row wrap;
@@ -50,11 +45,11 @@ tr {
   margin-left: 2em;
   margin-right: 2em;
 }
-th, td, .cell{
+
+.cell {
   width: 50%;
   padding: 10px;
 
-  /*text-align: center;*/
 
 
 }
@@ -72,11 +67,12 @@ th, td, .cell{
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+
+  /*box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;*/
+  box-shadow: rgba(0, 0, 0, 0.19) 0 10px 20px, rgba(0, 0, 0, 0.23) 0 6px 6px;
+
 }
 
-.tab {
-  display: block;
-}
 .tab-empty-elem {
 
 }
@@ -106,8 +102,8 @@ th, td, .cell{
   border: 5px black solid;
   width: 600px;
   height: 950px;
-  color: darkgreen;*/
-  background-color: lightgray;
+  color: darkgreen;
+  background-color: lightgray;*/
 
 }
 
@@ -115,42 +111,29 @@ th, td, .cell{
 
 <template>
 
-
-  <!--<LoginComp />-->
   <Login />
-
 
     <div class="phone">
       <div class="container">
         <div class="cell" v-for="element in extractStructure(menu_depth)">
-          <div class="cell-body">
-            <div class="tab-empty-elem"></div>
-
-            <img class="tab-pic" :src="`src/assets/icons/${element.logo}`" :alt="element.label"/>
-
-            <a class="title" v-if="element.children" :href="`?depth=${element.cat}`">{{ element.label }}</a>
-            <a class="title" v-else-if="element.feature" :href="`features/${element.feature}`">{{ element.label }}</a>
-            <a class="title" href="#" v-else>{{ element.label }}</a>
-          </div>
-
+          <a :href="cell_link(element)">
+            <div class="cell-body">
+              <div class="tab-empty-elem"></div>
+              <img class="tab-pic" :src="`src/assets/icons/${element.logo}`" :alt="element.label"/>
+              <p class="title"><a>{{ element.label }}</a></p>
+            </div>
+          </a>
         </div>
       </div>
       <div class="bottom-section">
         <a class="title" v-if="menu_depth" :href="`?depth=`">Retour au menu</a>
         <div v-else >
-          <p class="title"> Souvent visités </p>
+          <p class="title"> Récemment visités </p>
           <div class="container">
 
           </div>
         </div>
       </div>
-
     </div>
-
-
-
-
-
-
 
 </template>
