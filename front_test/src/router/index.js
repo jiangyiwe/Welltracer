@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Ping from '../components/Ping.vue'
+import Ping from '@/components/Ping.vue'
 import FindADoctor from "@/components/features/prescription_scan.vue";
 import Fitness from "@/components/features/home_fitness.vue";
 import MedicationStation from "@/components/features/medication_calendar.vue";
 import SelfCareCenter from "@/components/features/sleepwell.vue";
 import Food from "@/components/features/scan_a_meal.vue";
-import HomePage from '../components/HomePage.vue'
+import HomePage from '@/components/HomePage.vue'
+import navBar from "@/components/NavBar.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,11 @@ const router = createRouter({
       name: 'Self Care Center',
       component: SelfCareCenter
     },
+    {
+      path: '/navbar',
+      name: 'NavBar',
+      component: navBar
+    }
 
   ]
 })

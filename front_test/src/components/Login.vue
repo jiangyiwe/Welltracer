@@ -1,5 +1,6 @@
 <script>
 import {ref} from 'vue'
+import VueCookies from 'vue-cookies'
 
 export default {
   name: "Login",
@@ -25,6 +26,11 @@ export default {
       $cookies.remove("userId");
       userId.value = -1;
       message.value = "Connectez vous avec votre numéro d'utilisateur. Il sera utilisé pour vous identifier."
+      try {
+        const loginNavElem = document.getElementById("login");
+
+          loginNavElem.style.maxWidth = loginNavElem.scrollWidth + 40 +"px";
+      } catch (e) {}
     }
 
     return {
@@ -54,7 +60,7 @@ export function getUserId() {
 
   <div class="login-container">
 
-    <div v-if="getUserId() !== -1">
+    <div v-if="getUserId() !== -1" class="login-subcontainer">
       <h3 class="title">Vous êtes connecté en tant qu'utilisateur : {{userId}}</h3>
       <button class="button-3" role="button" @click="disconnect()">Se déconnecter</button>
     </div>
@@ -70,21 +76,19 @@ export function getUserId() {
 </template>
 <style scoped>
 .login-container {
-  border: 3px outset hsla(160, 100%, 37%, 1);
-  border-radius: 2.5em;
-  padding: 1em;
-  background-color: hsla(160, 100%, 37%, 0.2);
-
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  white-space: nowrap;
 }
 
 .login-subcontainer {
   display: flex;
   justify-content: flex-end;
   gap: 1em;
+  align-items: stretch;
+  white-space: nowrap;
 }
 
 .login-input {
@@ -109,52 +113,8 @@ export function getUserId() {
 }
 
 
-/* CSS */
-.button-3 {
-   appearance: none;
-   background-color: #2ea44f;
-   border: 1px solid rgba(27, 31, 35, .15);
-   border-radius: 6px;
-   box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-   box-sizing: border-box;
-   color: #fff;
-   cursor: pointer;
-   display: inline-block;
-   font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
-   font-size: 14px;
-   font-weight: 600;
-   line-height: 20px;
-   padding: 6px 16px;
-   text-align: center;
-   user-select: none;
-   -webkit-user-select: none;
-   touch-action: manipulation;
-   white-space: nowrap;
- }
 
-.button-3:focus:not(:focus-visible):not(.focus-visible) {
-  box-shadow: none;
-  outline: none;
-}
 
-.button-3:hover {
-  background-color: #2c974b;
-}
 
-.button-3:focus {
-  box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
-  outline: none;
-}
 
-.button-3:disabled {
-  background-color: #94d3a2;
-  border-color: rgba(27, 31, 35, .1);
-  color: rgba(255, 255, 255, .8);
-  cursor: default;
-}
-
-.button-3:active {
-  background-color: #298e46;
-  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
-}
 </style>

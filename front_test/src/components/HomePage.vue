@@ -1,5 +1,4 @@
 <script setup>
-  import Login from './Login.vue'
   import menu_structure from '@/assets/menu_structure.json';
 
   let urlParams = new URLSearchParams(window.location.search);
@@ -72,6 +71,9 @@
   box-shadow: rgba(0, 0, 0, 0.19) 0 10px 20px, rgba(0, 0, 0, 0.23) 0 6px 6px;
 
 }
+.cell-body:hover {
+  background-color: hsla(160, 100%, 37%, 0.3);
+}
 
 .tab-empty-elem {
 
@@ -98,12 +100,6 @@
 }
 
 .phone {
-  /*
-  border: 5px black solid;
-  width: 600px;
-  height: 950px;
-  color: darkgreen;
-  background-color: lightgray;*/
 
 }
 
@@ -111,9 +107,13 @@
 
 <template>
 
-  <Login />
 
-    <div class="phone">
+
+
+
+  <div class="phone">
+
+
       <div class="container">
         <div class="cell" v-for="element in extractStructure(menu_depth)">
           <a :href="cell_link(element)">
