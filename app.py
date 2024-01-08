@@ -182,7 +182,6 @@ def create_app():
 
         return jsonify(recommendations_info)
 
-    # todo: adapt this so that a picture is sent instead
     @app.route('/predict_img', methods=['GET'])
     def predict_img():
         print("Predict Image function called")  # Debugging line
@@ -218,8 +217,29 @@ def create_app():
 
         return html
 
-    # todo: adapt this so a picture is sent instead
-    @app.route('/detect-text', methods=['GET'])
+    @app.route('/predict_img_api', methods=['POST'])
+    def predict_img_api():
+        print("Predict Image function callled through API")  # Debugging line
+
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        img = img.resize((256, 256))  # Resize to the size your model expects
+        img = np.array(img)  # Convert to numpy array
+        img = img / 255.0  # Normalize the image
+        img = np.expand_dims(img, axis=0)  # Add batch dimension
+
+        # Make prediction
+        predictions = model.predict(img)
+        predicted_class = np.argmax(predictions, axis=1)
+        predicted_class_name = labels[predicted_class[0]]
+
+        print(predicted_class_name)
+
+
+        return jsonify({"class": predicted_class_name})
+    @app.route('/detect-text', methods=['POST'])
     def detect_text():
         # 设置图片路径
         # file_path = "C:/Users/Jiang/flask-vue-crud/data/Ordonnance.jpg"
@@ -239,6 +259,32 @@ def create_app():
             return jsonify({"texts": texts[0].description})
         else:
             return "No text found", 404
+
+    @app.route('/detect_text_api', methods=['POST'])
+    def detect_text_api():
+        # 设置图片路径
+
+        '''
+        # 读取图片文件
+        with io.open(file_path, 'rb') as image_file:
+            content = image_file.read()
+        '''
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        # 使用Vision API
+        image = vision.Image(content=img)
+        response = client.text_detection(image=image)
+        texts = response.text_annotations
+
+        # 返回识别结果
+        if texts:
+            return jsonify({"texts": texts[0].description})
+        else:
+            return "No text found", 404
+
+
 
     return app
 class WatchHistory(db.Model):

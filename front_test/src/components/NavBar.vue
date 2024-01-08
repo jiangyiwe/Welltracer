@@ -13,12 +13,21 @@
     </div>
     <div class="content-container">
 
-      <div class="content" id="menu">
-        <h1 class="component">zefhezhiuhzedeioyuzefnuygzeuygsduyzgeduyzg</h1>
-      </div>
       <div class="content" id="login">
 
         <Login  class="component"/>
+      </div>
+
+      <div class="content" id="menu">
+
+        <div style="padding: 1em; padding-right: 12em">
+
+          <a href="/HomePage" style="white-space: nowrap">Menu principal</a> <br>
+          <a href="/features/home_fitness" style="white-space: nowrap">Exercices à la maison</a> <br>
+          <a href="/features/scan_a_meal" style="white-space: nowrap">Scan de nourriture</a> <br>
+          <a href="/features/prescription_scan" style="white-space: nowrap">Scan de prescription</a> <br>
+        </div>
+
       </div>
     </div>
   </div>
