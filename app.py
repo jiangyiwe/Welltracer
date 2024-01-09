@@ -160,39 +160,33 @@ def create_app():
         if not user_watches:
             return jsonify({"error": "No history found for the user"}), 404
 
-        # 获取最近一次观看的视频类别
-        last_watched_record = user_watches[-1]  # 假设最后一条记录是最近的一次观看
-        last_watched_class = last_watched_record.video_class
+        # 获取用户观看过的所有视频类别
+        watched_classes = set(record.video_class for record in user_watches)
 
-        # 获取该类别下所有视频
-        video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", last_watched_class)
-        try:
-            all_videos = os.listdir(video_path)
-        except FileNotFoundError:
-            return jsonify({"error": "Video class directory not found"}), 404
+        # 存储所有视频的列表
+        all_videos_list = []
 
-        # 如果视频类别下没有视频
-        if not all_videos:
-            return jsonify({"error": "No videos found for the class"}), 404
+        # 收集每个类别下的所有视频
+        for video_class in watched_classes:
+            video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class)
+            try:
+                all_videos = os.listdir(video_path)
+                all_videos_list.extend([(video_class, video) for video in all_videos])
+            except FileNotFoundError:
+                continue  # 如果找不到该类别的目录，跳过该类别
 
-        # 从该类别中选择几个随机视频推荐给用户
-        num_recommendations = min(5, len(all_videos))  # 推荐数量，不超过该类别视频数量
-        recommendations = random.sample(all_videos, num_recommendations)
+        # 从所有视频中随机选择5个进行推荐
+        num_recommendations = min(5, len(all_videos_list))
+        recommendations = random.sample(all_videos_list, num_recommendations)
 
         # 构建推荐视频的信息列表
-        recommendations_info = [{"class": last_watched_class, "filename": video} for video in recommendations]
+        all_recommendations_info = [{
+            "class": video_class,
+            "filename": video,
+            "url": f"/video/{video_class}/{video}"
+        } for video_class, video in recommendations]
 
-        # 构建推荐视频的信息列表，并为每个视频添加URL
-        recommendations_info = []
-        for video in recommendations:
-            video_url = f"/video/{last_watched_class}/{video}"  # 构造视频的URL路径
-            recommendations_info.append({
-                "class": last_watched_class,
-                "filename": video,
-                "url": video_url  # 添加URL到信息中
-            })
-
-        return jsonify(recommendations_info)
+        return jsonify(all_recommendations_info)
 
 
     # 假设train_data_dir是你的训练数据目录
