@@ -43,15 +43,15 @@ def create_app():
     with app.app_context():
         db.create_all()  # 在应用上下文中创建数据库表
     scheduler = BackgroundScheduler()
-    model = load_model(r"C:\Users\Jiang\flask-vue-crud\model-re-image.h5")
-    model_sport = load_model(r"C:\Users\Jiang\flask-vue-crud\sport_model.h5")
-    classes_sport = sorted(os.listdir(r"C:\Users\Jiang\flask-vue-crud\data\sport"))
-    model_calories=load_model(r'C:\Users\Jiang\flask-vue-crud\data\food-101\final_model.hdf5')
-    credentials = service_account.Credentials.from_service_account_file(r"C:\Users\Jiang\flask-vue-crud\data\recotexte-409521-6e14f0a168bc.json")
+    model = load_model(r".\model-re-image.h5")
+    model_sport = load_model(r".\sport_model.h5")
+    classes_sport = sorted(os.listdir(r".\data\sport"))
+    model_calories=load_model(r'.\data\food-101\final_model.hdf5')
+    credentials = service_account.Credentials.from_service_account_file(r".\data\recotexte-409521-6e14f0a168bc.json")
     client = vision.ImageAnnotatorClient(credentials=credentials)
 
     # 读取CSV文件并创建食物名称到卡路里和千焦的映射
-    calories_df = pd.read_csv(r'C:\Users\Jiang\flask-vue-crud\data\calories.csv')
+    calories_df = pd.read_csv(r'.\data\calories.csv')
     calories_dict = pd.Series(calories_df.Cals_per100grams.values, index=calories_df.FoodItem).to_dict()
     kj_dict = pd.Series(calories_df.KJ_per100grams.values, index=calories_df.FoodItem).to_dict()
 
@@ -90,7 +90,7 @@ def create_app():
         video_selections = []
         for _ in range(num_videos):
             video_class = random.choice(classes_sport)
-            video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class)
+            video_path = os.path.join(r".\data\sport", video_class)
             video_files = os.listdir(video_path)
             video_file = random.choice(video_files)
 
@@ -108,7 +108,7 @@ def create_app():
 
     @app.route('/video/<video_class>/<video_filename>', methods=['GET'])
     def serve_video(video_class, video_filename):
-        video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class, video_filename)
+        video_path = os.path.join(r".\data\sport", video_class, video_filename)
         return send_file(video_path, mimetype='video/mp4')  # Ensure the mimetype matches your video format
 
     # 新增一个路由来记录观看
@@ -168,7 +168,7 @@ def create_app():
 
         # 收集每个类别下的所有视频
         for video_class in watched_classes:
-            video_path = os.path.join(r"C:\Users\Jiang\flask-vue-crud\data\sport", video_class)
+            video_path = os.path.join(r".\data\sport", video_class)
             try:
                 all_videos = os.listdir(video_path)
                 all_videos_list.extend([(video_class, video) for video in all_videos])
@@ -190,7 +190,7 @@ def create_app():
 
 
     # 假设train_data_dir是你的训练数据目录
-    train_data_dir = r'C:\Users\Jiang\flask-vue-crud\data\food-101\train'
+    train_data_dir = r'.\data\food-101\train'
 
     # 使用ImageDataGenerator创建一个生成器
     train_datagen = ImageDataGenerator(rescale=1. / 255)
@@ -214,8 +214,8 @@ def create_app():
     def clear_predictions():
         conn = sqlite3.connect('predictions.db')
         c = conn.cursor()
-        # Delete all records from the table
-        c.execute("DELETE FROM predictions")
+        # Delete all data from the table
+        c.execute('DELETE FROM predictions')
         conn.commit()
         conn.close()
 
@@ -546,8 +546,8 @@ def create_app():
         conn.close()
 
     def calculate_next_dose_time(frequency):
-        # Return a time 24 hours from now
-        return datetime.now() + timedelta(hours=24)
+        # For testing: Return a time one minute from now
+        return datetime.now() + timedelta(minutes=1)
 
     def send_email(receiver, subject, body):
         try:
@@ -568,6 +568,7 @@ def create_app():
         except Exception as e:
             logging.error(f"Failed to send email: {e}")
 
+    """
     def schedule_email_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
         cursor = conn.cursor()
@@ -589,11 +590,11 @@ def create_app():
             # Schedule the job
             scheduler.add_job(send_email, 'cron', day_of_week='mon-sun',
                               hour=reminder_time.hour, minute=reminder_time.minute,
-                              args=['jyiwen32@gmail.com', 'Medicine Reminder',
+                              args=['sointaminn@gmail.com', 'Medicine Reminder',
                                     f"It's time to take your medicine: {medicine}, Dosage: {dosage}\n{message}"])
         conn.close()
+ """
 
-    """
       # Run the function at the start to schedule all reminders
     def schedule_email_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
@@ -610,12 +611,12 @@ def create_app():
                                     f"It's time to take your medicine: {medicine}, Dosage: {dosage}\n{message}"])
             logging.info(f"Scheduled email to be sent at {reminder_time}")
         conn.close()
-    """
+
     schedule_email_reminders()
     @app.route('/detect-text', methods=['GET'])
     def detect_text():
         # 设置图片路径
-        file_path = "C:/Users/Jiang/flask-vue-crud/data/Ordonnance.jpg"
+        file_path = "./data/Ordonnance.jpg"
 
         # 读取图片文件
         with io.open(file_path, 'rb') as image_file:
@@ -660,47 +661,46 @@ def create_app():
         except Exception as e:
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
+    def delete_all_data():
+        conn = sqlite3.connect('predictions.db')
+        c = conn.cursor()
+        # Delete all data from the table
+        c.execute('DELETE FROM predictions')
+        conn.commit()
+        conn.close()
 
+    # 调用函数以删除数据
+    delete_all_data()
     @app.route('/clear_predictions', methods=['POST'])
     def clear_data():
-        clear_predictions()  # Call the function to clear data
+        delete_all_data() # Call the function to clear data
         return "Predictions data cleared successfully!"
 
     @app.route('/search', methods=['GET'])
     def search():
-        # 获取查询参数
-        location = request.args.get('location', 'paris')  # 默认值为'paris'
-        medecin_type = request.args.get('medecin_type', 'medecin-generaliste')  # 默认值为'medecin-generaliste'
+        location = request.args.get('location', 'paris')
+        medecin_type = request.args.get('medecin_type', 'medecin-generaliste')
 
-        # 配置Selenium
         options = Options()
-        options.headless = True  # 无头模式
-        browser = webdriver.Firefox(options=options)
+        options.headless = True
+        # 设置自定义 User-Agent
+        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')
 
         try:
-            # 构造目标网址
+            browser = webdriver.Firefox(options=options)
             url = f"https://www.doctolib.fr/{medecin_type}/{location}?availabilities=3"
-
-            # 打开网页
             browser.get(url)
             WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".dl-search-result-presentation"))
             )
 
-            # 解析网页
             soup = BeautifulSoup(browser.page_source, 'html.parser')
-
-            # 提取医生的名字和可用时间段
             doctors_info = []
 
-            # 找到外层的 'col-8 col-padding search-results-col-list' 容器
             search_results_list = soup.find_all("div", class_="col-8 col-padding search-results-col-list")
-
             for results_list in search_results_list:
-                # 在每个外层容器中寻找 'dl-layout-container'
                 layout_containers = results_list.find_all("div", class_="dl-layout-container")
                 for layout_container in layout_containers:
-                    # 对每个医生信息块进行遍历
                     doc_blocks = layout_container.find_all("div", class_="dl-layout-item dl-layout-size-xs-12")
                     for doc_block in doc_blocks:
                         presentation_container = doc_block.find("div", class_="dl-search-result-presentation")
@@ -709,23 +709,20 @@ def create_app():
                                                                        class_="dl-text dl-text-body dl-text-regular dl-text-s dl-text-primary-110")
                             name = name_section.text.strip() if name_section else "Name not found"
                         else:
-                            continue  # 如果没有找到名称容器则跳过
+                            continue
 
-                        # 查找该医生对应的可用时间段
                         calendar_container = doc_block.find("div", class_="dl-search-result-calendar")
                         time_slots = []
                         if calendar_container:
-                            # 遍历每个'日'的容器
                             days_containers = calendar_container.find_all("div", class_="availabilities-day")
                             for day_container in days_containers:
-                                # 在每个'日'的容器中遍历可用时间段
                                 slots = day_container.find_all("div", class_="availabilities-slot")
                                 for slot in slots:
                                     time = slot.get("aria-label", "No time found").strip()
                                     time_slots.append(time)
 
                         if name != "Name not found" and time_slots:
-                            doctors_info.append({"name": name, "availability": time_slots, "url": url})
+                            doctors_info.append({"name": name, "availability": time_slots})
 
             return jsonify(doctors_info)
 
@@ -733,7 +730,6 @@ def create_app():
             return f"An error occurred: {e}"
         finally:
             browser.quit()
-
 
     return app
 
