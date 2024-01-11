@@ -1,0 +1,132 @@
+{
+  "fitness": {
+    "cat": "fitness",
+    "label": "Pratiques sportives",
+    "logo": "dumbbell-solid.svg",
+    "children": {
+      "home_fitness": {
+        "label": "Exercices à la maison",
+        "feature": "home_fitness",
+        "logo": "person-running-solid.svg"
+      },
+      "sports_clubs": {
+        "label": "Clubs sportifs",
+        "feature": "sports_clubs",
+        "logo": "basketball-solid.svg"
+      },
+      "lifestyle": {
+        "label": "Pratiques bien-être",
+        "feature": "lifestyle",
+        "logo": "spa-solid.svg"
+      },
+      "sleepwell": {
+        "label": "Suivi du sommeil",
+        "feature": "sleepwell",
+        "logo": "moon-solid.svg"
+      },
+      "fitness_stats": {
+        "label": "Statistiques",
+        "feature": "fitness_stats",
+        "logo": "chart-line-solid.svg"
+      }
+    }
+  },
+  "food": {
+    "cat": "food",
+    "label":"Suivi alimentaire",
+    "logo": "utensils-solid.svg",
+    "children": {
+      "scan_a_meal": {
+        "label": "Analyse de repas",
+        "feature": "scan_a_meal",
+        "logo": "camera-solid.svg"
+      },
+      "healthy_diets": {
+        "label": "Régimes alimentaires",
+        "logo": "lemon-solid.svg"
+      },
+      "meal_ideas": {
+        "label": "Idées de repas",
+        "logo": "receipt-solid.svg"
+      },
+      "food_stats": {
+        "label": "Statistiques",
+        "logo": "chart-line-solid.svg"
+
+      }
+    }
+  },
+  "find_a_doctor": {
+
+    "cat": "find_a_doctor",
+    "label": "Trouver un docteur",
+    "logo": "user-doctor-solid.svg",
+    "children": {
+      "find_teleconsultations": {
+        "label": "Trouver une téléconsultation",
+        "logo": "user-nurse-solid.svg"
+      },
+      "diagnose_me": {
+        "logo": "comment-medical-solid",
+        "label": "Diagnostique moi"
+      },
+      "consultation_calendars": {
+        "label": "Calendrier de consultations",
+        "logo": "calendar-days-solid.svg"
+
+      },
+      "my_doctors": {
+        "label": "Mes docteurs",
+        "logo": "notes-medical.svg"
+      }
+    }
+  },
+  "medication_station":{
+    "cat": "medication_station",
+    "label": "Suivi médicaments",
+    "logo": "vial-circle-check-solid.svg",
+    "children": {
+      "medication_calendar": {
+        "label": "Suivi des prises de médicaments",
+        "feature": "medication_calendar",
+        "logo": "calendar-days-solid.svg"
+      },
+      "your_treatments": {
+        "label": "Traitements suivis",
+        "logo": "pills-solid.svg"
+
+      },
+      "prescription_scan": {
+        "label": "Scan d'ordonnance",
+        "feature": "prescription_scan",
+        "logo": "prescription-solid.svg"
+      },
+      "medication_graph": {
+        "label": "Statistiques de prises",
+        "logo": "chart-line-solid.svg"
+
+      }
+    }
+  },
+  "self_care_center": {
+    "cat": "self_care_center",
+    "label": "Prendre soin de vous",
+    "logo": "hand-holding-medical-solid.svg",
+    "children": {
+      "from_you_to_you": {
+        "label": "Tes messages pour toi-même",
+        "logo": "note-sticky-regular.svg"
+      },
+      "emergency_messages": {
+        "label": "Messages d'urgence",
+        "logo": "heart-circle-exclamation-solid.svg"
+      },
+      "send_for_help": {
+        "label": "Appeler à l'aide",
+        "logo": "person-drowning.svg"
+
+      }
+    }
+  }
+
+}

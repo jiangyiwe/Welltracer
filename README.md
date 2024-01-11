@@ -18,8 +18,10 @@ Client :
 
 Installation :  
 Dans un nouveau terminal :  
-`$ cd client`  
+`$ cd front_test`  
 `$ npm install`  
 
 Lancement du client :  
 `$ npm run dev`
+
+use capacitor

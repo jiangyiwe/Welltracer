@@ -16,6 +16,8 @@ from flask_sqlalchemy import SQLAlchemy
 import requests
 from google.cloud import vision
 from google.oauth2 import service_account
+# allow CORS
+from flask_cors import CORS
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from datetime import datetime, timedelta
 import sqlite3
@@ -35,23 +37,35 @@ import time
 import math
 # 定义一个路由暴露给网站的访问接口
 db = SQLAlchemy()
+
+
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///watch_history.db'
     db.init_app(app)
 
+
+    # enable CORS
+    CORS(app, resources={r'/*': {'origins': '*'}})
+
     with app.app_context():
         db.create_all()  # 在应用上下文中创建数据库表
     scheduler = BackgroundScheduler()
-    model = load_model(r".\model-re-image.h5")
-    model_sport = load_model(r".\sport_model.h5")
-    classes_sport = sorted(os.listdir(r".\data\sport"))
-    model_calories=load_model(r'.\data\food-101\final_model.hdf5')
-    credentials = service_account.Credentials.from_service_account_file(r".\data\recotexte-409521-6e14f0a168bc.json")
+    model = load_model("./model-re-image.h5")
+    model_sport = load_model("./sport_model.h5")
+    classes_sport = sorted(os.listdir("./data/sport"))
+    model = load_model("./model-re-image.h5")
+
+    model_sport = load_model("./sport_model.h5")
+
+    classes_sport = sorted(os.listdir("./data/sport/"))
+    model_calories=load_model('./data/food-101/final_model.hdf5')
+
+    credentials = service_account.Credentials.from_service_account_file("data/recotexte-409521-6e14f0a168bc.json")
     client = vision.ImageAnnotatorClient(credentials=credentials)
 
     # 读取CSV文件并创建食物名称到卡路里和千焦的映射
-    calories_df = pd.read_csv(r'.\data\calories.csv')
+    calories_df = pd.read_csv('./data/calories.csv')
     calories_dict = pd.Series(calories_df.Cals_per100grams.values, index=calories_df.FoodItem).to_dict()
     kj_dict = pd.Series(calories_df.KJ_per100grams.values, index=calories_df.FoodItem).to_dict()
 
@@ -90,7 +104,7 @@ def create_app():
         video_selections = []
         for _ in range(num_videos):
             video_class = random.choice(classes_sport)
-            video_path = os.path.join(r".\data\sport", video_class)
+            video_path = os.path.join("data/sport", video_class)
             video_files = os.listdir(video_path)
             video_file = random.choice(video_files)
 
@@ -108,7 +122,7 @@ def create_app():
 
     @app.route('/video/<video_class>/<video_filename>', methods=['GET'])
     def serve_video(video_class, video_filename):
-        video_path = os.path.join(r".\data\sport", video_class, video_filename)
+        video_path = os.path.join("data/sport", video_class, video_filename)
         return send_file(video_path, mimetype='video/mp4')  # Ensure the mimetype matches your video format
 
     # 新增一个路由来记录观看
@@ -168,7 +182,7 @@ def create_app():
 
         # 收集每个类别下的所有视频
         for video_class in watched_classes:
-            video_path = os.path.join(r".\data\sport", video_class)
+            video_path = os.path.join("./data/sport", video_class)
             try:
                 all_videos = os.listdir(video_path)
                 all_videos_list.extend([(video_class, video) for video in all_videos])
@@ -613,7 +627,30 @@ def create_app():
         conn.close()
 
     schedule_email_reminders()
-    @app.route('/detect-text', methods=['GET'])
+
+    @app.route('/predict_img_api', methods=['POST'])
+    def predict_img_api():
+        print("Predict Image function callled through API")  # Debugging line
+
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        img = img.resize((256, 256))  # Resize to the size your model expects
+        img = np.array(img)  # Convert to numpy array
+        img = img / 255.0  # Normalize the image
+        img = np.expand_dims(img, axis=0)  # Add batch dimension
+
+        # Make prediction
+        predictions = model.predict(img)
+        predicted_class = np.argmax(predictions, axis=1)
+        predicted_class_name = labels[predicted_class[0]]
+
+        print(predicted_class_name)
+
+
+        return jsonify({"class": predicted_class_name})
+    @app.route('/detect-text', methods=['POST'])
     def detect_text():
         # 设置图片路径
         file_path = "./data/Ordonnance.jpg"
@@ -643,6 +680,32 @@ def create_app():
             return jsonify({"texts": full_text, "frequencies": frequency})
         else:
             return "No text found", 404
+
+    @app.route('/detect_text_api', methods=['POST'])
+    def detect_text_api():
+        # 设置图片路径
+
+        '''
+        # 读取图片文件
+        with io.open(file_path, 'rb') as image_file:
+            content = image_file.read()
+        '''
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        # 使用Vision API
+        image = vision.Image(content=img)
+        response = client.text_detection(image=image)
+        texts = response.text_annotations
+
+        # 返回识别结果
+        if texts:
+            return jsonify({"texts": texts[0].description})
+        else:
+            return "No text found", 404
+
+
 
     @app.route('/delete-all-reminders', methods=['GET'])
     def delete_all_reminders():
