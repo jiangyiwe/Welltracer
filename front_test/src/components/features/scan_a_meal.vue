@@ -1,5 +1,5 @@
 <template>
-  <p>Send the picture of your meal here!</p>
+  <p v-if="!response">Uploadez une photo de votre repas ici !</p>
 
   <picture-input
       ref="pictureInput"
@@ -20,7 +20,9 @@
 
   <div v-if="response">
     <div v-if="response.data">
-      {{response.data.class}}
+      <p>Votre repas appartient à la catégorie : {{response.data.class}}</p>
+      <p>D'après vos entrées, votre portion contient les nutriments suivants :</p>
+
     </div>
   </div>
   <div v-else>

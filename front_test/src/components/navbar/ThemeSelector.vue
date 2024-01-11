@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: "medication_calendar"
+  name: "ThemeSelector"
 }
 </script>
 
