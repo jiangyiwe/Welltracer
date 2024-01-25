@@ -59,9 +59,9 @@ def create_app():
     model_sport = load_model("./sport_model.h5")
 
     classes_sport = sorted(os.listdir("./data/sport/"))
-    model_calories=load_model('./data/food-101/final_model.hdf5')
+    model_calories=load_model('./data/food-101/best_model.hdf5')
 
-    credentials = service_account.Credentials.from_service_account_file("data/recotexte-409521-6e14f0a168bc.json")
+    credentials = service_account.Credentials.from_service_account_file("./data/recotexte-409521-6e14f0a168bc.json")
     client = vision.ImageAnnotatorClient(credentials=credentials)
 
     # 读取CSV文件并创建食物名称到卡路里和千焦的映射
@@ -529,15 +529,41 @@ def create_app():
 
         return html
 
+
+
+    @app.route('/predict_img_api', methods=['POST'])
+    def predict_img_api():
+        print("Predict Image function callled through API")  # Debugging line
+
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        img = img.resize((256, 256))  # Resize to the size your model expects
+        img = np.array(img)  # Convert to numpy array
+        img = img / 255.0  # Normalize the image
+        img = np.expand_dims(img, axis=0)  # Add batch dimension
+
+        # Make prediction
+        predictions = model.predict(img)
+        predicted_class = np.argmax(predictions, axis=1)
+        predicted_class_name = labels[predicted_class[0]]
+
+        print(predicted_class_name)
+
+
+        return jsonify({"class": predicted_class_name})
+
     logging.basicConfig(level=logging.INFO)
     scheduler = BackgroundScheduler()
     scheduler.start()
+
     # 初始化数据库
     def init_db_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS reminders
-                         (id INTEGER PRIMARY KEY, medicine TEXT, reminder_time DATETIME, dosage TEXT, message TEXT)''')  # 增加了剂量字段
+                            (id INTEGER PRIMARY KEY, medicine TEXT, reminder_time DATETIME, dosage TEXT, message TEXT)''')  # 增加了剂量字段
         conn.commit()
         conn.close()
 
@@ -582,34 +608,9 @@ def create_app():
         except Exception as e:
             logging.error(f"Failed to send email: {e}")
 
-    """
-    def schedule_email_reminders():
-        conn = sqlite3.connect('medicine_reminders.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, medicine, reminder_time, dosage, message FROM reminders")
 
-        for row in cursor.fetchall():
-            id, medicine, reminder_time_str, dosage, message = row  # extract all row elements
 
-            # Split the datetime string into the main part and the fractional seconds
-            main_part, fractional_seconds = reminder_time_str.split('.')
-
-            # Parse the main part of the datetime string
-            reminder_time = datetime.strptime(main_part, '%Y-%m-%d %H:%M:%S')
-
-            # Convert the fractional seconds to microseconds and add to reminder_time
-            microseconds = int(fractional_seconds)
-            reminder_time = reminder_time.replace(microsecond=microseconds)
-
-            # Schedule the job
-            scheduler.add_job(send_email, 'cron', day_of_week='mon-sun',
-                              hour=reminder_time.hour, minute=reminder_time.minute,
-                              args=['sointaminn@gmail.com', 'Medicine Reminder',
-                                    f"It's time to take your medicine: {medicine}, Dosage: {dosage}\n{message}"])
-        conn.close()
- """
-
-      # Run the function at the start to schedule all reminders
+    # Run the function at the start to schedule all reminders
     def schedule_email_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
         cursor = conn.cursor()
@@ -628,29 +629,7 @@ def create_app():
 
     schedule_email_reminders()
 
-    @app.route('/predict_img_api', methods=['POST'])
-    def predict_img_api():
-        print("Predict Image function callled through API")  # Debugging line
-
-
-        file = request.files['image']
-        img = Image.open(file.stream)
-
-        img = img.resize((256, 256))  # Resize to the size your model expects
-        img = np.array(img)  # Convert to numpy array
-        img = img / 255.0  # Normalize the image
-        img = np.expand_dims(img, axis=0)  # Add batch dimension
-
-        # Make prediction
-        predictions = model.predict(img)
-        predicted_class = np.argmax(predictions, axis=1)
-        predicted_class_name = labels[predicted_class[0]]
-
-        print(predicted_class_name)
-
-
-        return jsonify({"class": predicted_class_name})
-    @app.route('/detect-text', methods=['POST'])
+    @app.route('/detect-text', methods=['GET'])
     def detect_text():
         # 设置图片路径
         file_path = "./data/Ordonnance.jpg"
@@ -675,37 +654,11 @@ def create_app():
                 next_dose = calculate_next_dose_time(frequency)
                 add_reminder(medicine, frequency, dosage)
             # 在这里使用 APScheduler 安排提醒
-            #scheduler.add_job(reminder_function, trigger='date', run_date=next_dose, args=[user_details])
+            # scheduler.add_job(reminder_function, trigger='date', run_date=next_dose, args=[user_details])
 
             return jsonify({"texts": full_text, "frequencies": frequency})
         else:
             return "No text found", 404
-
-    @app.route('/detect_text_api', methods=['POST'])
-    def detect_text_api():
-        # 设置图片路径
-
-        '''
-        # 读取图片文件
-        with io.open(file_path, 'rb') as image_file:
-            content = image_file.read()
-        '''
-
-        file = request.files['image']
-        img = Image.open(file.stream)
-
-        # 使用Vision API
-        image = vision.Image(content=img)
-        response = client.text_detection(image=image)
-        texts = response.text_annotations
-
-        # 返回识别结果
-        if texts:
-            return jsonify({"texts": texts[0].description})
-        else:
-            return "No text found", 404
-
-
 
     @app.route('/delete-all-reminders', methods=['GET'])
     def delete_all_reminders():
@@ -734,6 +687,33 @@ def create_app():
 
     # 调用函数以删除数据
     delete_all_data()
+
+    @app.route('/detect_text_api', methods=['POST'])
+    def detect_text_api():
+        # 设置图片路径
+
+        '''
+        # 读取图片文件
+        with io.open(file_path, 'rb') as image_file:
+            content = image_file.read()
+        '''
+
+        file = request.files['image']
+        img = Image.open(file.stream)
+
+        # 使用Vision API
+        image = vision.Image(content=img)
+        response = client.text_detection(image=image)
+        texts = response.text_annotations
+
+        # 返回识别结果
+        if texts:
+            return jsonify({"texts": texts[0].description})
+        else:
+            return "No text found", 404
+
+
+
     @app.route('/clear_predictions', methods=['POST'])
     def clear_data():
         delete_all_data() # Call the function to clear data
@@ -741,7 +721,7 @@ def create_app():
 
     @app.route('/search', methods=['GET'])
     def search():
-        location = request.args.get('location', 'paris')
+        location = request.args.get('location', 'lyon')
         medecin_type = request.args.get('medecin_type', 'medecin-generaliste')
 
         options = Options()
