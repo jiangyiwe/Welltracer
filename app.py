@@ -59,9 +59,9 @@ def create_app():
     model_sport = load_model("./sport_model.h5")
 
     classes_sport = sorted(os.listdir("./data/sport/"))
-    model_calories=load_model('./data/food-101/final_model.hdf5')
+    model_calories=load_model('./data/food-101/best_model.hdf5')
 
-    credentials = service_account.Credentials.from_service_account_file("data/recotexte-409521-6e14f0a168bc.json")
+    credentials = service_account.Credentials.from_service_account_file("./data/recotexte-409521-6e14f0a168bc.json")
     client = vision.ImageAnnotatorClient(credentials=credentials)
 
     # 读取CSV文件并创建食物名称到卡路里和千焦的映射
@@ -228,8 +228,8 @@ def create_app():
     def clear_predictions():
         conn = sqlite3.connect('predictions.db')
         c = conn.cursor()
-        # Delete all records from the table
-        c.execute("DELETE FROM predictions")
+        # Delete all data from the table
+        c.execute('DELETE FROM predictions')
         conn.commit()
         conn.close()
 
@@ -253,11 +253,8 @@ def create_app():
     @app.route('/predict_img', methods=['POST'])
     def predict_img(api_mode = False):
         mass = float(request.form.get('mass', 100))
-        print(request.form)
         data = request.form
 
-        print(request.form.get('mass'))
-        print(mass)
         image_file = request.files['image']
         if not image_file:
             return "No image provided."
@@ -550,8 +547,6 @@ def create_app():
             elif total_kj > max_kj:
                 advice_dict[food_category] = f"Consider decreasing intake of {', '.join(categories)}."
 
-
-
         # Compile all advice into a string
         advice2 = " ".join(advice_dict.values())
 
@@ -592,12 +587,13 @@ def create_app():
     logging.basicConfig(level=logging.INFO)
     scheduler = BackgroundScheduler()
     scheduler.start()
+
     # 初始化数据库
     def init_db_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS reminders
-                         (id INTEGER PRIMARY KEY, medicine TEXT, reminder_time DATETIME, dosage TEXT, message TEXT)''')  # 增加了剂量字段
+                            (id INTEGER PRIMARY KEY, medicine TEXT, reminder_time DATETIME, dosage TEXT, message TEXT)''')  # 增加了剂量字段
         conn.commit()
         conn.close()
 
@@ -620,8 +616,8 @@ def create_app():
         conn.close()
 
     def calculate_next_dose_time(frequency):
-        # Return a time 24 hours from now
-        return datetime.now() + timedelta(hours=24)
+        # For testing: Return a time one minute from now
+        return datetime.now() + timedelta(minutes=1)
 
     def send_email(receiver, subject, body):
         try:
@@ -642,33 +638,9 @@ def create_app():
         except Exception as e:
             logging.error(f"Failed to send email: {e}")
 
-    def schedule_email_reminders():
-        conn = sqlite3.connect('medicine_reminders.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, medicine, reminder_time, dosage, message FROM reminders")
 
-        for row in cursor.fetchall():
-            id, medicine, reminder_time_str, dosage, message = row  # extract all row elements
 
-            # Split the datetime string into the main part and the fractional seconds
-            main_part, fractional_seconds = reminder_time_str.split('.')
-
-            # Parse the main part of the datetime string
-            reminder_time = datetime.strptime(main_part, '%Y-%m-%d %H:%M:%S')
-
-            # Convert the fractional seconds to microseconds and add to reminder_time
-            microseconds = int(fractional_seconds)
-            reminder_time = reminder_time.replace(microsecond=microseconds)
-
-            # Schedule the job
-            scheduler.add_job(send_email, 'cron', day_of_week='mon-sun',
-                              hour=reminder_time.hour, minute=reminder_time.minute,
-                              args=['jyiwen32@gmail.com', 'Medicine Reminder',
-                                    f"It's time to take your medicine: {medicine}, Dosage: {dosage}\n{message}"])
-        conn.close()
-
-    """
-      # Run the function at the start to schedule all reminders
+    # Run the function at the start to schedule all reminders
     def schedule_email_reminders():
         conn = sqlite3.connect('medicine_reminders.db')
         cursor = conn.cursor()
@@ -684,7 +656,7 @@ def create_app():
                                     f"It's time to take your medicine: {medicine}, Dosage: {dosage}\n{message}"])
             logging.info(f"Scheduled email to be sent at {reminder_time}")
         conn.close()
-    """
+
     schedule_email_reminders()
 
     @app.route('/predict_img_api', methods=['POST'])
@@ -695,7 +667,7 @@ def create_app():
     @app.route('/detect-text', methods=['POST'])
     def detect_text(api_mode = False):
         # 设置图片路径
-        file_path = "data/Ordonnance.jpg"
+        file_path = "./data/Ordonnance.jpg"
 
         # 读取图片文件
         with io.open(file_path, 'rb') as image_file:
@@ -717,11 +689,39 @@ def create_app():
                 next_dose = calculate_next_dose_time(frequency)
                 add_reminder(medicine, frequency, dosage)
             # 在这里使用 APScheduler 安排提醒
-            #scheduler.add_job(reminder_function, trigger='date', run_date=next_dose, args=[user_details])
+            # scheduler.add_job(reminder_function, trigger='date', run_date=next_dose, args=[user_details])
 
             return jsonify({"texts": full_text, "frequencies": frequency})
         else:
             return "No text found", 404
+
+    @app.route('/delete-all-reminders', methods=['GET'])
+    def delete_all_reminders():
+        try:
+            conn = sqlite3.connect('medicine_reminders.db')
+            c = conn.cursor()
+
+            # 删除所有记录
+            c.execute("DELETE FROM reminders")
+
+            conn.commit()
+            conn.close()
+
+            return jsonify({'status': 'success', 'message': 'All reminders deleted.'}), 200
+
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    def delete_all_data():
+        conn = sqlite3.connect('predictions.db')
+        c = conn.cursor()
+        # Delete all data from the table
+        c.execute('DELETE FROM predictions')
+        conn.commit()
+        conn.close()
+
+    # 调用函数以删除数据
+    delete_all_data()
 
     @app.route('/detect_text_api', methods=['POST'])
     def detect_text_api():
@@ -750,64 +750,36 @@ def create_app():
 
 
 
-    @app.route('/delete-all-reminders', methods=['GET'])
-    def delete_all_reminders():
-        try:
-            conn = sqlite3.connect('medicine_reminders.db')
-            c = conn.cursor()
-
-            # 删除所有记录
-            c.execute("DELETE FROM reminders")
-
-            conn.commit()
-            conn.close()
-
-            return jsonify({'status': 'success', 'message': 'All reminders deleted.'}), 200
-
-        except Exception as e:
-            return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
     @app.route('/clear_predictions', methods=['POST'])
     def clear_data():
-        clear_predictions()  # Call the function to clear data
+        delete_all_data() # Call the function to clear data
         return "Predictions data cleared successfully!"
 
     @app.route('/search', methods=['GET'])
     def search():
-        # 获取查询参数
-        location = request.args.get('location', 'paris')  # 默认值为'paris'
-        medecin_type = request.args.get('medecin_type', 'medecin-generaliste')  # 默认值为'medecin-generaliste'
+        location = request.args.get('location', 'lyon')
+        medecin_type = request.args.get('medecin_type', 'medecin-generaliste')
 
-        # 配置Selenium
         options = Options()
-        options.headless = True  # 无头模式
-        browser = webdriver.Firefox(options=options)
+        options.headless = True
+        # 设置自定义 User-Agent
+        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')
 
         try:
-            # 构造目标网址
+            browser = webdriver.Firefox(options=options)
             url = f"https://www.doctolib.fr/{medecin_type}/{location}?availabilities=3"
-
-            # 打开网页
             browser.get(url)
             WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".dl-search-result-presentation"))
             )
 
-            # 解析网页
             soup = BeautifulSoup(browser.page_source, 'html.parser')
-
-            # 提取医生的名字和可用时间段
             doctors_info = []
 
-            # 找到外层的 'col-8 col-padding search-results-col-list' 容器
             search_results_list = soup.find_all("div", class_="col-8 col-padding search-results-col-list")
-
             for results_list in search_results_list:
-                # 在每个外层容器中寻找 'dl-layout-container'
                 layout_containers = results_list.find_all("div", class_="dl-layout-container")
                 for layout_container in layout_containers:
-                    # 对每个医生信息块进行遍历
                     doc_blocks = layout_container.find_all("div", class_="dl-layout-item dl-layout-size-xs-12")
                     for doc_block in doc_blocks:
                         presentation_container = doc_block.find("div", class_="dl-search-result-presentation")
@@ -816,23 +788,20 @@ def create_app():
                                                                        class_="dl-text dl-text-body dl-text-regular dl-text-s dl-text-primary-110")
                             name = name_section.text.strip() if name_section else "Name not found"
                         else:
-                            continue  # 如果没有找到名称容器则跳过
+                            continue
 
-                        # 查找该医生对应的可用时间段
                         calendar_container = doc_block.find("div", class_="dl-search-result-calendar")
                         time_slots = []
                         if calendar_container:
-                            # 遍历每个'日'的容器
                             days_containers = calendar_container.find_all("div", class_="availabilities-day")
                             for day_container in days_containers:
-                                # 在每个'日'的容器中遍历可用时间段
                                 slots = day_container.find_all("div", class_="availabilities-slot")
                                 for slot in slots:
                                     time = slot.get("aria-label", "No time found").strip()
                                     time_slots.append(time)
 
                         if name != "Name not found" and time_slots:
-                            doctors_info.append({"name": name, "availability": time_slots, "url": url})
+                            doctors_info.append({"name": name, "availability": time_slots})
 
             return jsonify(doctors_info)
 
@@ -840,7 +809,6 @@ def create_app():
             return f"An error occurred: {e}"
         finally:
             browser.quit()
-
 
     return app
 
