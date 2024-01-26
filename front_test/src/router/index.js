@@ -5,6 +5,7 @@ import Fitness from "@/components/features/home_fitness.vue";
 import MedicationCalendar from "@/components/features/medication_calendar.vue";
 import Sleepwell from "@/components/features/sleepwell.vue";
 import ScanAMeal from "@/components/features/scan_a_meal.vue";
+import FindADoctor from '@/components/features/find_a_doctor.vue'
 import Diets from "@/components/features/diets.vue"
 import HomePage from '@/components/HomePage.vue'
 import navBar from "@/components/NavBar.vue";
@@ -56,7 +57,13 @@ const router = createRouter({
       name: 'Medication Calendar',
       component: MedicationCalendar
     },
-      {
+    {
+      path: '/features/find_a_doctor',
+      name: 'Find A Doctor',
+      component: FindADoctor
+    },
+
+    {
       path: '/features/sleepwell',
       name: 'Sleepwell',
       component: Sleepwell

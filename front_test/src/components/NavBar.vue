@@ -29,6 +29,7 @@
           <a href="/features/home_fitness" style="white-space: nowrap">Exercices à la maison</a> <br>
           <a href="/features/scan_a_meal" style="white-space: nowrap">Scan de nourriture</a> <br>
           <a href="/features/prescription_scan" style="white-space: nowrap">Scan de prescription</a> <br>
+          <a href="/features/diets" style="white-space: nowrap">Analyse de votre alimentation</a>
         </div>
 
       </div>

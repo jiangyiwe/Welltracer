@@ -65,6 +65,7 @@
     "children": {
       "find_teleconsultations": {
         "label": "Trouver une téléconsultation",
+        "feature": "find_a_doctor",
         "logo": "user-nurse-solid.svg"
       },
       "diagnose_me": {
