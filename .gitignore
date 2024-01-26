@@ -47,3 +47,9 @@ server/var/
 /sport_model.h5
 /.ipynb_checkpoints/*
 /instance/watch_history.db
+/data/food-101/training.log
+/data/food-101/final_model.hdf5
+/data/food-101/best_model.hdf5
+/food-101/
+/test/
+/train/

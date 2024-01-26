@@ -4,11 +4,14 @@
 
     <div class="navbar-container">
 
-      <button type="button" class="collapsible" style="text-align: center" label-for="login">
-        <img  src="@/assets/icons/right-to-bracket-solid.svg" :alt="Login"/>
+      <button type="button" class="collapsible" label-for="login">
+        <img class="navbar-icon" src="@/assets/icons/right-to-bracket-solid.svg" alt="Login"/>
       </button>
-      <button type="button" style="text-align: center" class="collapsible" label-for="menu">
-        <img src="@/assets/icons/bars-solid.svg" :alt="Login"/>
+      <button type="button" class="collapsible" label-for="menu">
+        <img class="navbar-icon" src="@/assets/icons/bars-solid.svg" alt="Menu"/>
+      </button>
+      <button type="button" class="collapsible" label-for="physical">
+        <img class="navbar-icon" src="@/assets/icons/user-solid.svg" alt="Physical Information"/>
       </button>
     </div>
     <div class="content-container">
@@ -29,6 +32,9 @@
         </div>
 
       </div>
+      <div class="content" id="physical">
+        <PhysicalInfo class="component" />
+      </div>
     </div>
   </div>
 
@@ -42,6 +48,7 @@
 
 <script>
 import Login from '@/components/Login.vue'
+import PhysicalInfo from "@/components/navbar/PhysicalInfo.vue";
 
 export default {
   name: "NavBar",
@@ -54,6 +61,7 @@ export default {
 
   },
   components: {
+    PhysicalInfo,
     Login
   },
   mounted() {
@@ -92,7 +100,7 @@ export default {
   padding: 18px;
   width: 100%;
   border: none;
-  text-align: left;
+  text-align: center;
   outline: none;
   font-size: 15px;
 }
@@ -109,6 +117,10 @@ export default {
   max-height: 0;
   max-width: 30px;
   transition: all 0.2s ease-out;
+}
+
+.navbar-icon {
+  width: 16px;
 }
 
 .navbar-container {

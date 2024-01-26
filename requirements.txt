@@ -12,3 +12,9 @@ tensorflow>=2.13.1
 flask_sqlalchemy>=3.1.1
 google-cloud-texttospeech
 google-cloud-vision
+apscheduler>=3.10.4
+selenium
+bs4
+pillow
+pandas
+matplotlib

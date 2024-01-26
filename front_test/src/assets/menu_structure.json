@@ -43,6 +43,7 @@
       },
       "healthy_diets": {
         "label": "Régimes alimentaires",
+        "feature": "diets",
         "logo": "lemon-solid.svg"
       },
       "meal_ideas": {

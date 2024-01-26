@@ -204,7 +204,7 @@ def create_app():
 
 
     # 假设train_data_dir是你的训练数据目录
-    train_data_dir = r'C:\Users\Jiang\flask-vue-crud\data\food-101\train'
+    train_data_dir = 'data/food-101/train'
 
     # 使用ImageDataGenerator创建一个生成器
     train_datagen = ImageDataGenerator(rescale=1. / 255)
@@ -251,8 +251,13 @@ def create_app():
     food_list = list(train_generator.class_indices.keys())
 
     @app.route('/predict_img', methods=['POST'])
-    def predict_img():
+    def predict_img(api_mode = False):
         mass = float(request.form.get('mass', 100))
+        print(request.form)
+        data = request.form
+
+        print(request.form.get('mass'))
+        print(mass)
         image_file = request.files['image']
         if not image_file:
             return "No image provided."
@@ -300,7 +305,10 @@ def create_app():
 
         # If unknown values, prompt user to input the values
         if calories_per100g == "Unknown" or kj_per100g == "Unknown":
-            return render_template_string('''
+            if api_mode:
+                return jsonify({"class": predicted_class_name})
+            else:
+                return render_template_string('''
                 <html>
                     <body>
                         <h2>Predicted Class: {{ predicted_class_name }}</h2>
@@ -334,6 +342,15 @@ def create_app():
         conn.commit()
         conn.close()
 
+        if api_mode:
+            return jsonify({
+                "class": predicted_class_name,
+                "mass": mass,
+                "calories": actual_calories,
+                "kj": actual_kj,
+                "img_str": img_str
+            })
+
         # Create an HTML response
         html = f"<html><body>"
         html += f"<h2>Predicted Class: {predicted_class_name}</h2>"
@@ -346,7 +363,7 @@ def create_app():
         return html
 
     @app.route('/confirm_prediction', methods=['POST'])
-    def confirm_prediction():
+    def confirm_prediction(api_mode = False):
         class_override = request.form.get('class_override')
         calories_override = request.form.get('calories_override', "Unknown")
         kj_override = request.form.get('kj_override', "Unknown")
@@ -383,6 +400,15 @@ def create_app():
         conn.commit()
         conn.close()
 
+        if api_mode:
+            return jsonify({
+                "predicted_class_name": predicted_class_name,
+                "actual_calories": actual_calories,
+                "actual_kj": actual_kj,
+                "mass": mass,
+                "img_str": img_str
+            })
+
         # Create an HTML response with confirmed data
         return render_template_string('''
                <html>
@@ -405,6 +431,10 @@ def create_app():
            ''', predicted_class_name=predicted_class_name, actual_calories=actual_calories, actual_kj=actual_kj,
                                       mass=mass, img_str=img_str)
 
+    @app.route('/confirm_prediction_api', methods=['POST'])
+    def confirm_prediction_api():
+        return confirm_prediction(True)
+
     @app.route('/form', methods=['GET'])
     def display_form():
         # HTML form to submit user details
@@ -419,11 +449,12 @@ def create_app():
         '''
 
     @app.route('/analyze', methods=['POST'])
-    def analyze():
+    def analyze(api_mode = False):
         gender = request.form.get('gender', 'M').upper()
         age = float(request.form.get('age', 25))
         weight = float(request.form.get('weight', 70))
         height = float(request.form.get('height', 170))
+        kcal_objective = float(request.form.get('kcal_objective', -1))
 
         # Calculate Daily Calorie Needs
         if gender == "M":
@@ -431,12 +462,18 @@ def create_app():
         else:
             calorie_needs = 655.1 + (9.6 * weight) + (1.9 * height) - (4.7 * age)
 
+        # Override Calculations if kcal_objective form data is set
+        kcal_objective_warning = False
+        if kcal_objective > 0:
+            calorie_needs = kcal_objective
+            kcal_objective_warning = True
+
         # Calculate BMI
         bmi = weight / ((height / 100) ** 2)
 
         # Connect to the SQLite database
         conn = sqlite3.connect('predictions.db')
-        df = pd.read_sql_query("SELECT * FROM predictions", conn)
+        df = pd.read_sql_query("SELECT * FROM predictions WHERE calories <> 'Unknown' ", conn)
         conn.close()
 
         # Ensure there's data to analyze
@@ -463,6 +500,9 @@ def create_app():
 
         # Recommendations based on BMI and Calorie Intake Difference
         advice = ""
+        advice_warning = ""
+        if kcal_objective_warning:
+            advice_warning = "Vous avez défini manuellement un objectif calorique journalier. Cela peut être adapté si vous êtes grand sportif, si vous suivez un régime alimentaire particulier, ou si vous avez un métabolisme variant beaucoup des moyennes. Si votre état de santé se dégrade, veuillez consulter un généraliste ou un nutritionniste."
         if bmi < 18.5:
             if calorie_intake_diff >= 0:
                 advice += "Vous êtes en sous-poids et vous consommez plus de calories que nécessaire. Nous encourageons votre comportement et vous recommandons de manger des aliments plus nutritifs !"
@@ -477,7 +517,7 @@ def create_app():
             if calorie_intake_diff >= 0:
                 advice += "Vous êtes en surpoids et consommez plus de calories que nécessaire. Envisagez de réduire l'apport calorique et de vous concentrer sur une alimentation équilibrée."
             else:
-                advice += "Vous êtes en surpoids et vous consommez moins de calories que nécessaire. Continuez à faire du bon travail et concentrez-vous sur une alimentation saine et continue."
+                advice += "Vous êtes en surpoids et vous consommez moins de calories que nécessaire. Prenez garde à votre état de santé et concentrez-vous sur une alimentation saine et continue."
         # 各类食品建议摄入范围
         guidelines = {
             'Vegetable-Fruit': (450, 750),
@@ -510,8 +550,22 @@ def create_app():
             elif total_kj > max_kj:
                 advice_dict[food_category] = f"Consider decreasing intake of {', '.join(categories)}."
 
+
+
         # Compile all advice into a string
         advice2 = " ".join(advice_dict.values())
+
+        if api_mode:
+            return jsonify({
+                "daily_needs": calorie_needs,
+                "bmi": bmi,
+                "calories_intake": total_calories,
+                "calorie_intake_diff": calorie_intake_diff,
+                "advice": advice,
+                "advice2": advice2,
+                "advice_warning": advice_warning
+
+            })
 
         # Create an HTML response
         html = f"<html><body>"
@@ -528,6 +582,12 @@ def create_app():
         html += "</body></html>"
 
         return html
+
+    @app.route('/analyze_api', methods=['POST'])
+    def analyze_api():
+        return analyze(True)
+
+
 
     logging.basicConfig(level=logging.INFO)
     scheduler = BackgroundScheduler()
@@ -630,27 +690,10 @@ def create_app():
     @app.route('/predict_img_api', methods=['POST'])
     def predict_img_api():
         print("Predict Image function callled through API")  # Debugging line
+        return predict_img(True)
 
-
-        file = request.files['image']
-        img = Image.open(file.stream)
-
-        img = img.resize((256, 256))  # Resize to the size your model expects
-        img = np.array(img)  # Convert to numpy array
-        img = img / 255.0  # Normalize the image
-        img = np.expand_dims(img, axis=0)  # Add batch dimension
-
-        # Make prediction
-        predictions = model.predict(img)
-        predicted_class = np.argmax(predictions, axis=1)
-        predicted_class_name = labels[predicted_class[0]]
-
-        print(predicted_class_name)
-
-
-        return jsonify({"class": predicted_class_name})
     @app.route('/detect-text', methods=['POST'])
-    def detect_text():
+    def detect_text(api_mode = False):
         # 设置图片路径
         file_path = "data/Ordonnance.jpg"
 
@@ -683,6 +726,7 @@ def create_app():
     @app.route('/detect_text_api', methods=['POST'])
     def detect_text_api():
         # 设置图片路径
+        return detect_text(True);
 
         '''
         # 读取图片文件
